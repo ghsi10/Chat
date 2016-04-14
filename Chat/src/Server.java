@@ -161,7 +161,7 @@ public class Server {
 				}
 			}
 			//removeClient(user);
-			close();
+			closeConnection();
 		}
 		private void sendData(Data data) {
 			try {
@@ -171,8 +171,10 @@ public class Server {
 				System.out.println(e.toString());
 			}
 		}
-		private void close() {
-			// try to close the connection
+		/**
+		 * Try to close the connection.
+		 */
+		private void closeConnection() {
 			try {
 				if(output != null) output.close();
 			} catch(Exception e) {}
