@@ -9,34 +9,48 @@ import java.util.ArrayList;
 import org.omg.Messaging.SyncScopeHelper;
 
 @SuppressWarnings("unused")
+/**
+ * Server.
+ * @author idan
+ *
+ */
 public class Server {
 	public static final int PORT = 1234;
 	private ServerSocket serverSock;
 	private  ArrayList<ServerThread> clientList;
 	private boolean keepAlive;
-	public static void main(String[] args) {
-		new Server();
-	}
+	/**
+	 * Open new server.
+	 */
 	public Server() {
+		this(PORT);
+	}
+	/**
+	 * Open new server.
+	 * @param port.
+	 */
+	public Server(int nPort) {
 		keepAlive=true;
 		clientList = new ArrayList<ServerThread>();
 		try {
 			serverSock = new ServerSocket(PORT);
 			System.out.println("Server is up and ready for connections...");
 			while(keepAlive){
-				try {
-					Socket tmpSock = serverSock.accept();
-				//	System.out.println(tmpSock.getPort());
-					ServerThread t = new ServerThread(tmpSock);
-					clientList.add(t);
-					t.start();
-				} catch (IOException e) {}
+				Socket tmpSock = serverSock.accept();
+				System.out.println("new try to connect: " + tmpSock.getPort());
+				ServerThread t = new ServerThread(tmpSock);
+				clientList.add(t);
+				t.start();
 			}
 			serverSock.close();
 		} catch(Exception e) {
 			System.out.println("Unable to start/close the server: " + e);
 		}
 	}
+	/**
+	 * Send data to all clients.
+	 * @param data.
+	 */
 	private synchronized void sendAll(Data data) {
 		/*
 		for(int i = al.size(); --i >= 0;) {
@@ -49,6 +63,10 @@ public class Server {
 		}
 		 */
 	}
+	/**
+	 * Remove client from the server.
+	 * @param client.
+	 */
 	private synchronized void removeClient(String user) {
 		//send to all
 		for(int i = 0; i < clientList.size(); ++i) {
@@ -63,12 +81,19 @@ public class Server {
 
 	@Override
 	public String toString() {
-		return "";
+		return "server port: "+serverSock.getLocalPort();
 	}
 	@Override
 	public boolean equals(Object o) {
+		if (o instanceof Server && ((Server) o).serverSock.getLocalPort()==serverSock.getLocalPort())
+			return true;
 		return false;
 	}
+	/**
+	 * server thread.
+	 * @author idan
+	 *
+	 */
 	public class ServerThread extends Thread {
 		private String user;
 		private ObjectInputStream input;
